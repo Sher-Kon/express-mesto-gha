@@ -18,19 +18,22 @@ module.exports.getUserID = (req, res) => {
       }
     })
     .catch((err) => {
+      console.dir(err);
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Невалидный id ' });
       } else {
-        console.dir(err); res.status(404).send({ message: 'Пользователь по указанному _id не найден' })
+        res.status(404).send({ message: 'Пользователь по указанному _id не найден' })
       }
     });
 };
 
 module.exports.getUsers = (req, res) => {
   User.find({}) //запрос всех
-    .then(users => res.send(users)
-    )//
-    .catch((err) => { console.dir(err); res.status(500).send({ message: 'Ошибка чтения всех пользователей' }) });
+    .then(users => res.send(users))//
+    .catch((err) => {
+      console.dir(err);
+      res.status(500).send({ message: 'Ошибка чтения всех пользователей' })
+    });
 };
 
 module.exports.createUser = (req, res) => {

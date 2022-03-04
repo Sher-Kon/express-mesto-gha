@@ -31,7 +31,10 @@ module.exports.createCard = (req, res) => {
 module.exports.getCards = (req, res) => {
   Card.find({}) //запрос всех
     .then(cards => res.send({ cards }))//
-    .catch((err) => { console.dir(err); res.status(500).send({ message: 'Запрашиваемые карточки не найдены' }) });
+    .catch((err) => {
+      console.dir(err);
+      res.status(500).send({ message: 'Запрашиваемые карточки не найдены' })
+    });
 };
 
 module.exports.deleteCard = (req, res) => {
@@ -44,10 +47,11 @@ module.exports.deleteCard = (req, res) => {
       }
     })//
     .catch((err) => { //
+      console.dir(err);
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Невалидный id ' });
       } else {
-        console.dir(err); res.status(404).send({ message: 'Карточка с указанным _id не найдена' })
+        res.status(404).send({ message: 'Карточка с указанным _id не найдена' })
       }
     });
 };
@@ -75,10 +79,11 @@ module.exports.likeCard = (req, res) => {
       }
     })
     .catch((err) => {
+      console.dir(err);
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Невалидный id ' });
       } else {
-        console.dir(err); res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' })
+        res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' })
       }
     });
 };
@@ -104,10 +109,11 @@ module.exports.dislikeCard = (req, res) => {
       }
     })
     .catch((err) => {
+      console.dir(err);
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Невалидный id ' });
       } else {
-        console.dir(err); res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка' })
+        res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка' })
       }
     });
 };

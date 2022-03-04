@@ -23,6 +23,9 @@ app.use((req, res, next) => {
 
 app.use('/', routerUsers); // запускаем
 app.use('/', routerCards); // запускаем
+app.use((req, res) => {
+  res.status(404).send({ message: 'Запрос на несуществующий роут' });
+});
 
 app.listen(PORT, () => {
     console.log(`App listening on port ${PORT}`);

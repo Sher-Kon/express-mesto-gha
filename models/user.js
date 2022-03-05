@@ -19,11 +19,10 @@ const userSchema = new mongoose.Schema({
   avatar: { //  ссылка на аватарку:
     type: String, // это строка
     required: true, // обязательное поле
-    //minlength: 2, // минимальная длина — 2 символа
-    //maxlength: 200, // а максимальная — 200 символов
-  }
+    // minlength: 2, // минимальная длина — 2 символа
+    // maxlength: 200, // а максимальная — 200 символов
+  },
 });
-
 
 // для populate() - по ref обязателен user
 module.exports = mongoose.model('user', userSchema);

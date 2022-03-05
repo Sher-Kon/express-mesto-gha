@@ -15,23 +15,22 @@ const cardSchema = new mongoose.Schema({
     required: true, // обязательное поле
   },
   owner: { //  ссылка на модель автора карточки:
-    type: mongoose.Types.ObjectId, //String, // это ObjectId
+    type: mongoose.Types.ObjectId, // String, // это ObjectId
     ref: 'user',
     required: true, // обязательное поле
   },
   likes: [// список лайкнувших пост пользователей
-    {     // по умолчанию — пустой массив (поле default)
+    { // по умолчанию — пустой массив (поле default)
       type: mongoose.Types.ObjectId,
       ref: 'user',
     },
   ],
-  createdAt: {    //  дата создания:
-    type: Date,         // это Date
-    default: Date.now(),//значение по умолчанию Date.now
+  createdAt: { //  дата создания:
+    type: Date, // это Date
+    default: Date.now(), // значение по умолчанию Date.now
     required: true, // обязательное поле
   },
 });
-
 
 // создаём модель и экспортируем её
 module.exports = mongoose.model('card', cardSchema);

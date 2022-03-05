@@ -1,9 +1,8 @@
 const express = require('express');
-const routerUsers = require('./routes/users.js'); // импортируем роутер
-const routerCards = require('./routes/cards.js'); // импортируем роутер
 const mongoose = require('mongoose');
-const path = require('path');
 const bodyParser = require('body-parser');
+const routerCards = require('./routes/cards'); // импортируем роутер
+const routerUsers = require('./routes/users'); // импортируем роутер
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -16,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // для приёма ве�
 
 app.use((req, res, next) => {
   req.user = {
-    _id: '621c5f720253f81c16cb74d6' // _id пользователя
+    _id: '621c5f720253f81c16cb74d6', // _id пользователя
   };
   next();
 });
@@ -28,5 +27,5 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`App listening on port ${PORT}`);
+  console.log(`App listening on port ${PORT}`);
 });

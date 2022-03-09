@@ -1,13 +1,51 @@
 // controllers/users.js
 // это файл контроллеров
-
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  User.findOne({ email }).select('+password')
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('Неправильная почта'));//'Неправильные почта или пароль'
+      }
+      // сравниваем переданный пароль и хеш из базы
+      return bcrypt.compare(password, user.password);
+    })
+    .then((matched) => {
+      if (!matched) {
+        // хеши не совпали — отклоняем промис
+        return Promise.reject(new Error('хеши не совпали у пароля'));//Неправильные почта или пароль
+      }
+      // аутентификация успешна
+      // res.send({ message: 'Всё верно!' });
+      // создадим токен
+      // id из мидлвэры             '621c5f720253f81c16cb74d6'
+      const token = jwt.sign({ _id: 'd285e3dceed844f902650f40' }, 'some-secret-key');
+      res.send({ token });// вернём токен
+    })
+    .catch((err) => {
+      // возвращаем ошибку аутентификации
+      if (err.name === 'MongoError' && err.code === 11000) {
+        res
+          .status(409)
+          .send({ message: 'такой email уже зарегистрирован' });
+      } else {
+        res
+          .status(401)
+          .send({ message: err.message });
+      }
+    });
+};
 
 module.exports.getUserID = (req, res) => {
   User.findById(req.params.id)// запрос одного
     .then((users) => {
       if (!users) {
-        res.status(404).send({ message: 'Пользователь с указанным _id не найден' });// выдавать ошибку 404
+        res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
       } else {
         res.send({
           about: users.about,
@@ -37,15 +75,21 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  User.create({ name, about, avatar })
-    .then((user) => res.send({
-      about: user.about,
-      avatar: user.avatar,
-      name: user.name,
-      _id: user.id,
-    }))
+  // const { name, about, avatar, email } = req.body;
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      name: req.body.name,
+      about: req.body.about,
+      avatar: req.body.avatar,
+      email: req.body.email,
+      password: hash, // записываем хеш в базу
+    })
+      .then((user) => res.send({
+        about: user.about,
+        avatar: user.avatar,
+        name: user.name,
+        _id: user.id,
+      })))
     .catch((err) => {
       // console.dir(err);
       if (err.name === 'ValidationError') {

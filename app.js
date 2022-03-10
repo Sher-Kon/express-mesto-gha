@@ -26,12 +26,12 @@ app.use(auth);
 
 app.use('/', routerUsers); // запускаем
 app.use('/', routerCards); // запускаем
-app.use((req, res) => {
-  res.status(404).send({ message: 'Запрос на несуществующий роут' });
+app.use((req, res, next) => {
+  // res.status(404).send({ message: 'Запрос на несуществующий роут' });
 
-  // const err = new Error('Запрос на несуществующий роут');
-  // err.statusCode = 404;
-  // next(err);
+  const err = new Error('Запрос на несуществующий rout');
+  err.statusCode = 404;
+  next(err);
 });
 
 // здесь обрабатываем все ошибки

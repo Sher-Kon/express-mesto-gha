@@ -39,14 +39,14 @@ module.exports.getCards = (req, res) => {
     });
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.id)
     .then((card) => { //
       if (!card) {
-        res.status(404).send({ message: 'Карточка с указанным _id не найдена' });
-        // const err = new Error('Карточка с указанным _id не найдена');
-        // err.statusCode = 404;
-        // next(err);
+        // res.status(404).send({ message: 'Карточка с указанным _id не найдена' });
+        const err = new Error('Карточка с указанным _id не найдена');
+        err.statusCode = 404;
+        next(err);
       }
       if (JSON.stringify(card.owner) === `"${req.user._id}"`) {
         // res.send({ message: 'Своя карточка' });
@@ -55,24 +55,24 @@ module.exports.deleteCard = (req, res) => {
             res.send({ message: 'Пост удален' });
           });
       } else {
-        res.send({ message: 'Нельзя удалять чужую карточку' });
-        // const err = new Error('Нельзя удалять чужую карточку');
-        // err.statusCode = 400;
-        // next(err);
+        // res.send({ message: 'Нельзя удалять чужую карточку' });
+        const err = new Error('Нельзя удалять чужую карточку');
+        err.statusCode = 403;
+        next(err);
       }
     })
     .catch((err) => { //
       // console.dir(err);
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Невалидный id ' });
-        // const err = new Error('Невалидный id');
-        // err.statusCode = 400;
-        // next(err);
+        // res.status(400).send({ message: 'Невалидный id ' });
+        const err = new Error('Невалидный id');
+        err.statusCode = 400;
+        next(err);
       } else {
-        res.status(500).send({ message: 'Карточка с указанным _id не найдена' });
-        // const err = new Error('Карточка с указанным _id не найдена');
-        // err.statusCode = 500;
-        // next(err);
+        // res.status(500).send({ message: 'Карточка с указанным _id не найдена' });
+        const err = new Error('Карточка с указанным _id не найдена');
+        err.statusCode = 500;
+        next(err);
       }
     });
 };

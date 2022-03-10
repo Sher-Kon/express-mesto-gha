@@ -40,23 +40,19 @@ module.exports.getCards = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-
   Card.findById(req.params.id)
     .then((card) => { //
       if (!card) {
-        res.status(404).send({ message: 'Карточка с указанным _id не найдена' });// выдавать ошибку 404
+        res.status(404).send({ message: 'Карточка с указанным _id не найдена' });
+      }
+      if (JSON.stringify(card.owner) === `"${req.user._id}"`) {
+        // res.send({ message: 'Своя карточка' });
+        Card.findByIdAndRemove(req.params.id)
+          .then(() => { //
+            res.send({ message: 'Пост удален' });
+          });
       } else {
-        // console.log(JSON.stringify(card.owner));
-        // console.log(`"${req.user._id}"`);
-        if (JSON.stringify(card.owner) === `"${req.user._id}"`) {
-          // res.send({ message: 'Своя карточка' });
-          Card.findByIdAndRemove(req.params.id)
-            .then((card) => { //
-              res.send({ message: 'Пост удален' });
-            });
-        } else {
-          res.send({ message: 'Чужая карточка' });
-        }
+        res.send({ message: 'Нельзя удалять чужую карточку' });
       }
     })
     .catch((err) => { //
@@ -67,10 +63,6 @@ module.exports.deleteCard = (req, res) => {
         res.status(500).send({ message: 'Карточка с указанным _id не найдена' });
       }
     });
-
-  /*
-  */
-
 };
 
 module.exports.likeCard = (req, res) => {

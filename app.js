@@ -15,21 +15,9 @@ const app = express();
 
 // подключаемся к серверу mongo
 mongoose.connect('mongodb://localhost:27017/mestodb');
-//  {
-//    useNewUrlParser: true,
-//    useCreateIndex: true,
-//    useFindAndModify: false,
-//    useUnifiedTopology: true,
-//  },
-//);
 
 app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
-
-// app.use((req, res, next) => {
-//  req.user = { _id: '621c5f720253f81c16cb74d6' };
-//  next();
-// });
 
 app.post('/signin', login);
 app.post('/signup', createUser);

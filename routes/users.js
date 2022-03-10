@@ -10,9 +10,9 @@ const {
   updateAvatarUser,
 } = require('../controllers/users');
 
+routerUsers.get('/users/me', getUsers);
 routerUsers.get('/users/:id', getUserID);
 routerUsers.get('/users', getUsers);
-routerUsers.get('/users/me', getUsers);
 routerUsers.patch('/users/me', updateProfileUser);
 routerUsers.patch('/users/me/avatar', updateAvatarUser);
 

@@ -10,7 +10,7 @@ module.exports.login = (req, res) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('Неправильная почта'));//'Неправильные почта или пароль'
+        return Promise.reject(new Error('Неправильные почта или пароль'));//Неправильные почта
       }
       // сравниваем переданный пароль и хеш из базы
       return bcrypt.compare(password, user.password);
@@ -18,13 +18,13 @@ module.exports.login = (req, res) => {
     .then((matched) => {
       if (!matched) {
         // хеши не совпали — отклоняем промис
-        return Promise.reject(new Error('хеши не совпали у пароля'));//Неправильные почта или пароль
+        return Promise.reject(new Error('Неправильные почта или пароль'));//хеши не совпали у пароля
       }
       // аутентификация успешна
       // res.send({ message: 'Всё верно!' });
       // создадим токен
-      // id из мидлвэры             '621c5f720253f81c16cb74d6'
-      const token = jwt.sign({ _id: 'd285e3dceed844f902650f40' }, 'some-secret-key');
+      // id из задания              'd285e3dceed844f902650f40'
+      const token = jwt.sign({ _id: '6228961fe85fd137eef2be33' }, 'some-secret-key', {expiresIn: '7d'});
       res.send({ token });// вернём токен
     })
     .catch((err) => {

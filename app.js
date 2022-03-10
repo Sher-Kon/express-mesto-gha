@@ -28,6 +28,25 @@ app.use('/', routerUsers); // запускаем
 app.use('/', routerCards); // запускаем
 app.use((req, res) => {
   res.status(404).send({ message: 'Запрос на несуществующий роут' });
+
+  // const err = new Error('Запрос на несуществующий роут');
+  // err.statusCode = 404;
+  // next(err);
+});
+
+// здесь обрабатываем все ошибки
+app.use((err, req, res, next) => {
+  // если у ошибки нет статуса, выставляем 500
+  const { statusCode = 500, message } = err;
+
+  res
+    .status(statusCode)
+    .send({
+      // проверяем статус и выставляем сообщение в зависимости от него
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message
+    });
 });
 
 app.listen(PORT, () => {

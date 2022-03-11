@@ -4,13 +4,21 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
+const BadRequestError = require('../errors/bad-request-err'); // 400
+const UnauthorizedError = require('../errors/unauthorized-err'); // 401
+const ForbiddenError = require('../errors/forbidden-err'); // 403
+const NotFoundError = require('../errors/not-found-err'); // 404
+const ConflictError = require('../errors/conflict-err'); // 409
+const InternalServerError = require('../errors/in-server-err'); // 500
+
+
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));// Неправильные почта
+        return Promise.reject(new Error('Неправильные почта (или пароль)'));// Неправильные почта
       }
       // сравниваем переданный пароль и хеш из базы
       return bcrypt.compare(password, user.password);
@@ -18,70 +26,24 @@ module.exports.login = (req, res, next) => {
     .then((matched) => {
       if (!matched) {
         // хеши не совпали — отклоняем промис
-        return Promise.reject(new Error('Неправильные почта или пароль'));// хеши не совпали у пароля
+        return Promise.reject(new Error('Неправильные (почта или) пароль'));// хеши не совпали у пароля
       }
       // аутентификация успешна
       // res.send({ message: 'Всё верно!' });
-      // создадим токен
-      // id из задания              'd285e3dceed844f902650f40'
+      // создадим токен из задания  'd285e3dceed844f902650f40'
       const token = jwt.sign({ _id: '6228961fe85fd137eef2be33' }, 'some-secret-key', { expiresIn: '7d' });
       res.send({ token });// вернём токен
     })
     .catch((err) => {
       // возвращаем ошибку аутентификации
+      // console.dir(err);
       if (err.name === 'MongoError' && err.code === 11000) {
-        // res.status(409).send({ message: 'такой email уже зарегистрирован' });
-        const err = new Error('такой email уже зарегистрирован');
-        err.statusCode = 409;
-        next(err);
+        //  res.status(409).send({ message: 'такой email уже зарегистрирован' });
+        next(new ConflictError('такой email уже зарегистрирован')); // 409
       } else {
         // res.status(401).send({ message: err.message });
-        const err = new Error(err.message);
-        err.statusCode = 401;
-        next(err);
+        next(new UnauthorizedError(err.message)); // 401
       }
-    });
-};
-
-module.exports.getUserID = (req, res, next) => {
-  User.findById(req.params.id)// запрос одного
-    .then((users) => {
-      if (!users) {
-        res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
-      } else {
-        res.send({
-          about: users.about,
-          avatar: users.avatar,
-          name: users.name,
-          _id: users.id,
-        });
-      }
-    })
-    .catch((err) => {
-      // console.dir(err);
-      if (err.name === 'CastError') {
-        // res.status(400).send({ message: 'Невалидный id' });
-        const err = new Error('Невалидный id');
-        err.statusCode = 400;
-        next(err);
-      } else {
-        // res.status(500).send({ message: 'Пользователь по указанному _id не найден' });
-        const err = new Error('Пользователь по указанному _id не найден');
-        err.statusCode = 500;
-        next(err);
-      }
-    });
-};
-
-module.exports.getUsers = (req, res, next) => {
-  User.find({}) // запрос всех
-    .then((users) => res.send(users))//
-    .catch(() => {
-      // console.dir(err);
-      // res.status(500).send({ message: 'Ошибка чтения всех пользователей' });
-      const err = new Error('Ошибка чтения всех пользователей');
-      err.statusCode = 500;
-      next(err);
     });
 };
 
@@ -103,18 +65,44 @@ module.exports.createUser = (req, res, next) => {
       })))
     .catch((err) => {
       // console.dir(err);
-      if (err.name === 'ValidationError') {
-        // res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
-        const err = new Error('Переданы некорректные данные при создании пользователя');
-        err.statusCode = 400;
-        next(err);
-      } else {
-        // res.status(500).send({ message: 'Переданы некорректные данные при создании пользователя' });
-        const err = new Error('Переданы некорректные данные при создании пользователя');
-        err.statusCode = 500;
-        next(err);
+      if (err.code === 11000) {
+        next(new ConflictError('такой пользователь уже зарегистрирован')); // 409
       }
+      if (err.name === 'ValidationError') {
+        next(new ForbiddenError('Переданы некорректные данные при создании пользователя')); // 403
+      }
+      else { next(err); }
     });
+};
+
+module.exports.getUserID = (req, res, next) => {
+  User.findById(req.params.id)// запрос одного
+    .then((users) => {
+      if (!users) {
+        // res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
+        throw new NotFoundError('Пользователь с указанным _id не найден');// 404
+      } else {
+        res.send({
+          about: users.about,
+          avatar: users.avatar,
+          name: users.name,
+          _id: users.id,
+        });
+      }
+    })
+    .catch((err) => {
+      // console.dir(err);
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Невалидный id')); // 400
+      }
+      else { next(err); }
+    });
+};
+
+module.exports.getUsers = (req, res, next) => {
+  User.find({}) // запрос всех
+    .then((users) => res.send(users))//
+    .catch(next);
 };
 
 module.exports.updateProfileUser = (req, res, next) => {
@@ -138,16 +126,9 @@ module.exports.updateProfileUser = (req, res, next) => {
     .catch((err) => {
       // console.dir(err);
       if (err.name === 'ValidationError') {
-        // res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-        const err = new Error('Переданы некорректные данные при обновлении профиля');
-        err.statusCode = 400;
-        next(err);
-      } else {
-        // res.status(500).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-        const err = new Error('Переданы некорректные данные при обновлении профиля');
-        err.statusCode = 500;
-        next(err);
+        next(new BadRequestError('Переданы некорректные данные при обновлении профиля')); // 400
       }
+      else { next(err); }
     });
 };
 
@@ -172,15 +153,8 @@ module.exports.updateAvatarUser = (req, res, next) => {
     .catch((err) => {
       // console.dir(err);
       if (err.name === 'ValidationError') {
-        // res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
-        const err = new Error('Переданы некорректные данные при обновлении аватара');
-        err.statusCode = 400;
-        next(err);
-      } else {
-        // res.status(500).send({ message: 'Переданы некорректные данные при обновлении аватара' });
-        const err = new Error('Переданы некорректные данные при обновлении аватара');
-        err.statusCode = 500;
-        next(err);
+        next(new BadRequestError('Переданы некорректные данные при обновлении аватара')); // 400
       }
+      else { next(err); }
     });
 };

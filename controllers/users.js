@@ -6,10 +6,8 @@ const User = require('../models/user');
 
 const BadRequestError = require('../errors/bad-request-err'); // 400
 const UnauthorizedError = require('../errors/unauthorized-err'); // 401
-const ForbiddenError = require('../errors/forbidden-err'); // 403
 const NotFoundError = require('../errors/not-found-err'); // 404
 const ConflictError = require('../errors/conflict-err'); // 409
-const InternalServerError = require('../errors/in-server-err'); // 500
 
 
 module.exports.login = (req, res, next) => {
@@ -31,7 +29,7 @@ module.exports.login = (req, res, next) => {
       // аутентификация успешна
       // res.send({ message: 'Всё верно!' });
       // создадим токен из задания  'd285e3dceed844f902650f40'
-      const token = jwt.sign({ _id: '6228961fe85fd137eef2be33' }, 'some-secret-key', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: '622b6ff71cfe2693afb55dde' }, 'some-secret-key', { expiresIn: '7d' });
       res.send({ token });// вернём токен
     })
     .catch((err) => {
@@ -65,13 +63,14 @@ module.exports.createUser = (req, res, next) => {
       })))
     .catch((err) => {
       // console.dir(err);
-      if (err.code === 11000) {
-        next(new ConflictError('такой пользователь уже зарегистрирован')); // 409
-      }
+      if (err.code === 11000) { next(new ConflictError('такой пользователь уже зарегистрирован'));} // 409
+      else { next(err); }
+/*
       if (err.name === 'ValidationError') {
-        next(new ForbiddenError('Переданы некорректные данные при создании пользователя')); // 403
+        next(new BadRequestError('Переданы некорректные данные при создании пользователя')); // 400
       }
       else { next(err); }
+      */
     });
 };
 

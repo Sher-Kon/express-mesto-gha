@@ -35,7 +35,7 @@ module.exports.login = (req, res, next) => {
     .catch((err) => {
       // возвращаем ошибку аутентификации
       // console.dir(err);
-      if (err.name === 'MongoError' && err.code === 11000) {
+      if (err.name === 'MongoServerError' && err.code === 11000) {
         //  res.status(409).send({ message: 'такой email уже зарегистрирован' });
         next(new ConflictError('такой email уже зарегистрирован')); // 409
       } else {
@@ -62,15 +62,16 @@ module.exports.createUser = (req, res, next) => {
         _id: user.id,
       })))
     .catch((err) => {
-      // console.dir(err);
-      if (err.code === 11000) { next(new ConflictError('такой пользователь уже зарегистрирован'));} // 409
-      else { next(err); }
-/*
+       //console.dir(err.name);
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при создании пользователя')); // 400
       }
-      else { next(err); }
-      */
+      else {
+        if (err.name === 'MongoServerError' && err.code === 11000) {
+          next(new ConflictError('такой пользователь уже зарегистрирован')); // 409
+        }
+        else { next(err); }
+      }
     });
 };
 

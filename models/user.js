@@ -40,10 +40,10 @@ const userSchema = new mongoose.Schema({
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
 
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         return /^https?:\/\/(www.)?[0-9a-zA-Z\/\-]+\.[0-9a-zA-Z\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=]+\#?$/.test(v);
       },
-      message: props => `Переданы некорректные данные ссылки аватара!`
+      message: props => 'Переданы некорректные данные ссылки аватара!'
     },
   },
 });
@@ -51,9 +51,9 @@ const userSchema = new mongoose.Schema({
 // для populate() - по ref обязателен user
 module.exports = mongoose.model('user', userSchema);
 
-    /*
-        validator{(
-          validate: 'matches',
-          arguments: /^https?:\/\/(www.)?[0-9a-zA-Z\/\-]+\.[0-9a-zA-Z\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=]+\#?$/,
-        }),
-    */
+/*
+    validator{(
+      validate: 'matches',
+      arguments: /^https?:\/\/(www.)?[0-9a-zA-Z\/\-]+\.[0-9a-zA-Z\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=]+\#?$/,
+    }),
+*/

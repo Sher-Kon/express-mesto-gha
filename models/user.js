@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     type: String, // это строка
     required: true,
     unique: true, // уникальный
-    validate:{
+    validate: {
       validator: isEmail,
       message: '{VALUE} is not a valid email',
       isAsync: false,
@@ -35,11 +35,25 @@ const userSchema = new mongoose.Schema({
   },
   avatar: { //  ссылка на аватарку:
     type: String, // это строка
-    // minlength: 2, // минимальная длина — 2 символа
-    // maxlength: 200, // а максимальная — 200 символов
+    minlength: 2, // минимальная длина — 2 символа
+    maxlength: 200, // а максимальная — 200 символов
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+
+    validate: {
+      validator: function(v) {
+        return /^https?:\/\/(www.)?[0-9a-zA-Z\/\-]+\.[0-9a-zA-Z\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=]+\#?$/.test(v);
+      },
+      message: props => `Переданы некорректные данные ссылки аватара!`
+    },
   },
 });
 
 // для populate() - по ref обязателен user
 module.exports = mongoose.model('user', userSchema);
+
+    /*
+        validator{(
+          validate: 'matches',
+          arguments: /^https?:\/\/(www.)?[0-9a-zA-Z\/\-]+\.[0-9a-zA-Z\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=]+\#?$/,
+        }),
+    */

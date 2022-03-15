@@ -7,6 +7,7 @@ const routerCards = require('./routes/cards'); // импортируем роу�
 const routerUsers = require('./routes/users'); // импортируем роутер
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const NotFoundError = require('./errors/not-found-err'); // 404
 
 const { PORT = 3000 } = process.env;
 const app = express();

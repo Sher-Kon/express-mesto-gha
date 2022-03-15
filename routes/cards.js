@@ -8,7 +8,7 @@ const {
 } = require('../controllers/cards');
 
 routerCards.get('/cards', getCards);
-//routerCards.post('/cards', createCard);
+// routerCards.post('/cards', createCard);
 routerCards.post('/cards', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),

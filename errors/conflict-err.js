@@ -3,7 +3,7 @@ class ConflictError extends Error {
     super(message);
     this.statusCode = 409;
     this.errorName = 'ConflictError';
-    this.errorMessage = message
+    this.errorMessage = message;
   }
 }
 

@@ -16,7 +16,7 @@ const {
 routerUsers.get('/users/me', getUserAuth);
 routerUsers.get('/users/:id', getUserID);
 routerUsers.get('/users', getUsers);
-//routerUsers.patch('/users/me', updateProfileUser);
+// routerUsers.patch('/users/me', updateProfileUser);
 routerUsers.patch('/users/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
@@ -24,7 +24,7 @@ routerUsers.patch('/users/me', celebrate({
   }).unknown(true),
 }), updateProfileUser);
 
-//routerUsers.patch('/users/me/avatar', updateAvatarUser);
+// routerUsers.patch('/users/me/avatar', updateAvatarUser);
 routerUsers.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().required().pattern(/(https?:\/\/)(w{3}\.)?(((\d{1,3}\.){3}\d{1,3})|((\w-?)+\.(ru|com)))(:\d{2,5})?((\/.+)+)?\/?#?/),

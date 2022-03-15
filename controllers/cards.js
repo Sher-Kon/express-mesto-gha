@@ -25,8 +25,7 @@ module.exports.deleteCard = (req, res, next) => {
       // console.dir(err);
       if (err.name === 'CastError') {
         next(new BadRequestError('Невалидный id')); // 400
-      }
-      else { next(err); }
+      } else { next(err); }
     });
 };
 
@@ -51,8 +50,7 @@ module.exports.createCard = (req, res, next) => {
       // console.dir(err);
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при создании карточки')); // 400
-      }
-      else { next(err); }
+      } else { next(err); }
     });
 };
 
@@ -86,8 +84,7 @@ module.exports.likeCard = (req, res, next) => {
       // console.dir(err);
       if (err.name === 'CastError') {
         next(new BadRequestError('Невалидный id')); // 400
-      }
-      else { next(err); }
+      } else { next(err); }
     });
 };
 
@@ -115,7 +112,6 @@ module.exports.dislikeCard = (req, res, next) => {
       // console.dir(err);
       if (err.name === 'CastError') {
         next(new BadRequestError('Невалидный id')); // 400
-      }
-      else { next(err); }
+      } else { next(err); }
     });
 };

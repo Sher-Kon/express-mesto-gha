@@ -3,7 +3,7 @@ class BadRequestError extends Error {
     super(message);
     this.statusCode = 400;
     this.errorName = 'BadRequestError';
-    this.errorMessage = message
+    this.errorMessage = message;
   }
 }
 

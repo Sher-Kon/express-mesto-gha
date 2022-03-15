@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const routerCards = require('./routes/cards'); // импортируем роутер
 const routerUsers = require('./routes/users'); // импортируем роутер
-const {createUser, login,} = require('./controllers/users');
+const { createUser, login, } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 
 const { celebrate, Joi } = require('celebrate');
@@ -31,7 +31,10 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
-  }).unknown(true),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(/(https?:\/\/)(w{3}\.)?(((\d{1,3}\.){3}\d{1,3})|((\w-?)+\.(ru|com)))(:\d{2,5})?((\/.+)+)?\/?#?/),
+  }), // .unknown(true),
 }), createUser);
 
 
@@ -41,10 +44,7 @@ app.use(auth);
 app.use('/', routerUsers); // запускаем
 app.use('/', routerCards); // запускаем
 app.use((req, res, next) => {
-  // ошибку отправим на централизованную обработку
-  const err = new Error('Запрос на несуществующий rout');
-  err.statusCode = 404;
-  next(err);
+  next(new NotFoundError('Маршрут не найден'));
 });
 
 // обработчики ошибок

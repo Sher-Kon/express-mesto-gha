@@ -1,6 +1,7 @@
 // models/card.js
 // это файл моделей
 
+const { isURL } = require('validator');
 const mongoose = require('mongoose');
 
 const cardSchema = new mongoose.Schema({
@@ -13,6 +14,10 @@ const cardSchema = new mongoose.Schema({
   link: { //  ссылка на картинку:
     type: String, // это строка
     required: true, // обязательное поле
+    validate: {
+      validator: (v) => isURL(v),
+      message: 'Поле "link" должно быть валидным URL-адресом',
+    },
   },
   owner: { //  ссылка на модель автора карточки:
     type: mongoose.Types.ObjectId, // String, // это ObjectId

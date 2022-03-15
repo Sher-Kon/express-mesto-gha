@@ -9,7 +9,6 @@ const UnauthorizedError = require('../errors/unauthorized-err'); // 401
 const NotFoundError = require('../errors/not-found-err'); // 404
 const ConflictError = require('../errors/conflict-err'); // 409
 
-
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
@@ -19,29 +18,21 @@ module.exports.login = (req, res, next) => {
         return Promise.reject(new Error('Неправильные почта (или пароль)'));// Неправильные почта
       }
       // сравниваем переданный пароль и хеш из базы
-      return bcrypt.compare(password, user.password);
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            // хеши не совпали — отклоняем промис
+            return Promise.reject(new Error('Неправильные (почта или) пароль'));// хеши не совпали у пароля
+          }
+          return user;
+        });
     })
-    .then((matched) => {
-      if (!matched) {
-        // хеши не совпали — отклоняем промис
-        return Promise.reject(new Error('Неправильные (почта или) пароль'));// хеши не совпали у пароля
-      }
-      // аутентификация успешна
-      // res.send({ message: 'Всё верно!' });
-      // создадим токен из задания  'd285e3dceed844f902650f40'
-      const token = jwt.sign({ _id: '622b6ff71cfe2693afb55dde' }, 'some-secret-key', { expiresIn: '7d' });
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.send({ token });// вернём токен
     })
     .catch((err) => {
-      // возвращаем ошибку аутентификации
-      // console.dir(err);
-      if (err.name === 'MongoServerError' && err.code === 11000) {
-        //  res.status(409).send({ message: 'такой email уже зарегистрирован' });
-        next(new ConflictError('такой email уже зарегистрирован')); // 409
-      } else {
-        // res.status(401).send({ message: err.message });
-        next(new UnauthorizedError(err.message)); // 401
-      }
+      next(new UnauthorizedError(err.message)); // 401
     });
 };
 
@@ -55,6 +46,7 @@ module.exports.createUser = (req, res, next) => {
       email: req.body.email,
       password: hash, // записываем хеш в базу
     })
+      .catch(next)
       .then((user) => res.send({
         about: user.about,
         avatar: user.avatar,
@@ -62,7 +54,7 @@ module.exports.createUser = (req, res, next) => {
         _id: user.id,
       })))
     .catch((err) => {
-       //console.dir(err.name);
+      //console.dir(err.name);
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при создании пользователя')); // 400
       }
@@ -72,6 +64,29 @@ module.exports.createUser = (req, res, next) => {
         }
         else { next(err); }
       }
+    });
+};
+
+module.exports.getUserAuth = (req, res, next) => {
+  User.findById(req.user._id)// запрос одного
+    .then((users) => {
+      if (!users) {
+        throw new NotFoundError('Пользователь с указанным _id не найден');// 404
+      } else {
+        res.send({
+          about: users.about,
+          avatar: users.avatar,
+          name: users.name,
+          _id: users.id,
+        });
+      }
+    })
+    .catch((err) => {
+      // console.dir(err);
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Невалидный id')); // 400
+      }
+      else { next(err); }
     });
 };
 

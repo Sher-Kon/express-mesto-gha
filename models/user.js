@@ -10,9 +10,8 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true, // уникальный
     validate: {
-      validator: isEmail,
-      message: '{VALUE} is not a valid email',
-      isAsync: false,
+      validator: (v) => isEmail(v),
+      message: 'Поле "email" должно быть валидным email-адресом',
     },
   },
   password: {

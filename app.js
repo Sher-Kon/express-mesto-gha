@@ -49,7 +49,7 @@ app.use((req, res, next) => {
 // обработчики ошибок
 app.use(errors()); // обработчик ошибок celebrate
 // централизованно обрабатываем все ошибки
-app.use((err, req, res, next) => {
+app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
 
@@ -64,5 +64,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
+  console.log(`App listening on port ${PORT}`); // eslint-disable-line no-console
 });

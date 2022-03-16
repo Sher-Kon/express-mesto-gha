@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
 
     validate: {
       validator(v) {
-        return "^https?://(www.)?[0-9a-zA-Z/-]+.[0-9a-zA-Z-._~:/?#[]@!$&'()*+,;=]+#?$".test(v);
+        return /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/.test(v);
       },
       message: () => 'Переданы некорректные данные ссылки аватара!',
     },

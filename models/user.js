@@ -40,19 +40,12 @@ const userSchema = new mongoose.Schema({
 
     validate: {
       validator(v) {
-        return /^https?:\/\/(www.)?[0-9a-zA-Z\/\-]+\.[0-9a-zA-Z\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=]+\#?$/.test(v);
+        return "^https?://(www.)?[0-9a-zA-Z/-]+.[0-9a-zA-Z-._~:/?#[]@!$&'()*+,;=]+#?$".test(v);
       },
-      message: (props) => 'Переданы некорректные данные ссылки аватара!',
+      message: () => 'Переданы некорректные данные ссылки аватара!',
     },
   },
 });
 
 // для populate() - по ref обязателен user
 module.exports = mongoose.model('user', userSchema);
-
-/*
-    validator{(
-      validate: 'matches',
-      arguments: /^https?:\/\/(www.)?[0-9a-zA-Z\/\-]+\.[0-9a-zA-Z\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=]+\#?$/,
-    }),
-*/

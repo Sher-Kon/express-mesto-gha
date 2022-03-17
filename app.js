@@ -8,6 +8,7 @@ const routerUsers = require('./routes/users'); // импортируем роу�
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-err'); // 404
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -17,8 +18,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
+app.use(requestLogger); // подключаем логгер запросов до всех обработчиков роутов
 
-// app.post('/signin', login);
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -26,7 +27,6 @@ app.post('/signin', celebrate({
   }),
 }), login);
 
-// app.post('/signup', createUser);
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -34,7 +34,7 @@ app.post('/signup', celebrate({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(/(https?:\/\/)(w{3}\.)?(((\d{1,3}\.){3}\d{1,3})|((\w-?)+\.(ru|com)))(:\d{2,5})?((\/.+)+)?\/?#?/),
-  }), // .unknown(true),
+  }),
 }), createUser);
 
 // авторизация
@@ -45,6 +45,8 @@ app.use('/', routerCards); // запускаем
 app.use((req, res, next) => {
   next(new NotFoundError('Маршрут не найден'));
 });
+
+app.use(errorLogger); // логгер ошибок
 
 // обработчики ошибок
 app.use(errors()); // обработчик ошибок celebrate
